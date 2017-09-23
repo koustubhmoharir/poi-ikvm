@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>poi-ikvm</id>
+    <version>3.17.0</version>
+	<title>Apache POI</title>
+    <authors>Koustubh Moharir</authors>
+    <owners>Koustubh Moharir</owners>
+    <licenseUrl>https://github.com/koustubhmoharir/poi-ikvm/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/koustubhmoharir/poi-ikvm</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Apache POI compiled for .NET with IKVM.NET</description>
+    <releaseNotes>First release.</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>POI</tags>
+    <dependencies>
+      <dependency id="IKVM" version="8.1.5717.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="lib\**" target="lib" />
+  </files>
+</package>
