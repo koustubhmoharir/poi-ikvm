@@ -31,21 +31,23 @@ Remove-Item poi.zip
 Get-Item poi* | select -Index 0 | Rename-Item -Path {$_.FullName} -NewName poi
 }
 
-$poi_main = Get-ChildItem -Path poi | where {$_.Name -match '^poi-\d+\.\d+\.jar$'}
+$poi_main = Get-ChildItem -Path poi | where {$_.Name -match '^poi-[.\d]+\.jar$'}
 
-$version = $poi_main.BaseName.Substring("poi-".Length) + ".0"
+$version = [Version]$poi_main.BaseName.Substring("poi-".Length)
+$version = New-Object -TypeName Version -ArgumentList ($version.Major, [Math]::Max(0, $version.Minor), [Math]::Max(0, $version.Build), [Math]::Max(0, $version.Revision))
 
 $latestPublished = (.\nuget.exe list id:poi-ikvm) | where {$_ -imatch '^poi-ikvm\s'} | foreach {[Version]($_ -replace '^poi-ikvm\s(.*)$', '$1')}
+$latestPublished = New-Object -TypeName Version -ArgumentList ($latestPublished.Major, [Math]::Max(0, $latestPublished.Minor), [Math]::Max(0, $latestPublished.Build), [Math]::Max(0, $latestPublished.Revision))
 
-if ($latestPublished -ne $null -and $latestPublished -ge [Version]$version)
+if ($latestPublished -ne $null -and $latestPublished -ge $version)
 {
-    $version = (New-Object -TypeName Version -ArgumentList ($latestPublished.Major, $latestPublished.Minor, ($latestPublished.Build + 1))).ToString()
+    $version = New-Object -TypeName Version -ArgumentList ($latestPublished.Major, $latestPublished.Minor, $latestPublished.Build, ($latestPublished.Revision + 1))
 }
 
 
 $vr = '[0-9.\-]+'
 
-$libs = "commons-codec$($vr)jar|commons-collections$($vr)jar|commons-logging$($vr)jar|junit$($vr)jar|log4j$($vr)jar"
+$libs = "activation$($vr)jar|commons-[a-z]+$($vr)jar|jaxb-[a-z]+$($vr)jar|junit$($vr)jar|log4j$($vr)jar|SparseBitSet$($vr)jar"
 
 $new_libs = Get-ChildItem -Path .\poi\lib | select { $_.Name -imatch $libs } | where {$_ -eq $false}
 
@@ -54,12 +56,14 @@ if ($new_libs -ne $null)
     throw "This version of poi has new dependencies. The code below needs to be modified to determine whether to include them in the package"
 }
 
-$jars = @($($poi_main;(Get-ChildItem -Path .\poi\lib | where {$_ -inotmatch "junit$($vr)jar"})) | select -ExpandProperty FullName)
+$jars = @($($poi_main;(Get-ChildItem -Path .\poi\lib | where {$_ -inotmatch "activation$($vr)jar|junit$($vr)jar|jaxb-[a-z]+$($vr)jar"})) | select -ExpandProperty FullName)
 
-&.\ikvm\bin\ikvmc.exe -out:package\lib\net40\poi.dll -target:library $jars
+New-Item -Path .\package\lib\net40 -ItemType Directory -Force
+
+&.\ikvm\bin\ikvmc.exe -keyfile:key.snk -out:package\lib\net40\poi.dll -target:library ("-version:"+$version.ToString()) ("-fileversion:"+$version.ToString()) $jars
 
 $versionElement = Select-Xml -Path .\package\poi-ikvm.nuspec -XPath 'package/metadata/version'
-$versionElement.Node.'#text' = $version
+$versionElement.Node.'#text' = $version.ToString()
 $versionElement.Node.OwnerDocument.Save("$PWD\package\poi-ikvm.nuspec")
 
 $versionElement = Select-Xml -Path .\package\poi-ikvm.nuspec -XPath 'package/metadata/dependencies/dependency[@id=''IKVM'']'
