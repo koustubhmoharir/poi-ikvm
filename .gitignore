@@ -3,3 +3,8 @@
 /poi*
 /package/lib
 /nuget.exe
+/package/bin
+/package/obj
+/test.xlsx
+/sample-test/bin
+/sample-test/obj

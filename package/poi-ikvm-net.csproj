@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>poi</AssemblyName>
+    <PackageId>poi-ikvm-net</PackageId>
+    <Version>5.2.5</Version>
+    <Title>Apache POI</Title>
+    <Authors>Koustubh Moharir</Authors>
+    <Company>Koustubh Moharir</Company>
+    <Description>Apache POI 5.2.5 compiled for modern .NET with modern IKVM</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/koustubhmoharir/poi-ikvm</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/koustubhmoharir/poi-ikvm</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>poi;ikvm</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IKVM" Version="8.15.0" />
+    <PackageReference Include="IKVM.Maven.Sdk" Version="1.11.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <MavenReference Include="org.apache.poi:poi:5.2.5" />
+    <MavenReference Include="org.apache.poi:poi-ooxml:5.2.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Declaratively bundle all transpiled Maven dependency DLLs into the NuGet package -->
+    <None Include="bin\Release\net9.0\*.dll" Exclude="bin\Release\net9.0\poi.dll" Pack="true" PackagePath="lib\net9.0" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>
